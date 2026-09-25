@@ -279,18 +279,18 @@
         let currentTopClass = "";
 
         const diseaseData = {
-            "Healthy Leaf": {
+          "Healthy Leaf": {
                 treatment: "પાક સંપૂર્ણપણે સ્વસ્થ છે! કોઈ દવાની જરૂર નથી.",
                 prevention: "• યોગ્ય સમયે જમીનમાં પૂરતો ભેજ જાળવવો.\n• સમતોલ ખાતર (NPK) નો જ ઉપયોગ કરવો.",
                 action: "• હાલ કોઈ રાસાયણિક છંટકાવની જરૂર નથી.\n• દર ૩-૪ દિવસે ખેતરનું નિરીક્ષણ ચાલુ રાખો.",
-                contact: "• નિયમિત માર્ગદર્શન માટે સ્થાનિક ગ્રામ સેવક અથવા કૃષિ સભાસદનો સંપર્ક કરવો.",
-                future: "• જમીનની ફળદ્રુપતા વધારવા માટે દેશી છાણિયું ખાતર વાપરવું.\n• પાકને યોગ્ય સમયે જૈવિક ખાતર આપવું."
+                contact: "• નિયમિત માર્ગદર્શન માટે સ્થાનિક ગ્રામ સેવકનો સંપર્ક કરવો.",
+                future: "• જમીનની ફળદ્રુપતા વધારવા માટે દેશી છાણિયું ખાતર વાપરવું."
             },
             "Healthy": {
                 treatment: "પાક સંપૂર્ણપણે સ્વસ્થ છે! કોઈ દવાની જરૂર નથી.",
-                prevention: "• યોગ્ય સમયે જમીનમાં પૂરતો ભેજ જાળવવો.",
+                prevention: "• યોગ્ય સમયે જમીનમાં પૂરતો ભેજ જાળવવો.\n• સમતોલ ખાતર (NPK) નો જ ઉપયોગ કરવો.",
                 action: "• હાલ કોઈ રાસાયણિક છંટકાવની જરૂર નથી.",
-                contact: "• નિયમિત માર્ગદર્શન માટે કિસાન કૉલ સેન્ટર (1800-180-1551) નો સંપર્ક કરવો.",
+                contact: "• કિસાન કૉલ સેન્ટર (1800-180-1551) નો સંપર્ક કરવો.",
                 future: "• સમતોલ ખાતર અને યોગ્ય પિયત આપવું."
             },
             "Tikka Disease": {
@@ -409,7 +409,7 @@
             }
         }
 
-        async function predict(imageSource) {
+       async function predict(imageSource) {
             const prediction = await model.predict(imageSource);
             let topClass = "";
             let highestProb = 0;
@@ -438,15 +438,32 @@
             const preventionCard = document.getElementById("prevention-card");
             const moreBtn = document.getElementById("more-info-btn");
 
-            treatmentCard.style.display = "block";
+            // ડેટા મેળવો (જો નામ ન મળે તો જ Default વાપરવું)
+            const data = diseaseData[topClass] || diseaseData["Default"];
+
+            // 🔥 અહીં લોજિક સુધારેલું છે: જો Healthy પાન હોય તો દવાની જરૂર નથી
+            if (topClass.toLowerCase().includes("healthy")) {
+                treatmentCard.style.display = "block";
+                treatmentCard.style.backgroundColor = "#e8f5e9"; // લીલો કલર
+                treatmentCard.style.border = "1px solid #a5d6a7";
+                
+                // ટાઈટલ અને મેસેજ બદલો
+                treatmentCard.querySelector(".info-title").innerText = "✅ પાકની વર્તમાન સ્થિતિ:";
+                document.getElementById("treatment-text").innerText = "પાક સંપૂર્ણપણે સ્વસ્થ છે! કોઈ પણ પ્રકારની રાસાયણિક દવાની જરૂર નથી.";
+            } else {
+                treatmentCard.style.display = "block";
+                treatmentCard.style.backgroundColor = "#fff3e0"; // હળવો ઓરેન્જ/રેડ કલર રોગ માટે
+                treatmentCard.style.border = "1px solid #ffe0b2";
+                
+                treatmentCard.querySelector(".info-title").innerText = "💊 ત્વરિત ઈલાજ / દવાની સલાહ:";
+                document.getElementById("treatment-text").innerText = data.treatment;
+            }
+
             preventionCard.style.display = "block";
             moreBtn.style.display = "block";
 
-            const data = diseaseData[topClass] || diseaseData["Tikka Disease"] || diseaseData["Default"];
-            document.getElementById("treatment-text").innerText = data.treatment;
             document.getElementById("prevention-text").innerText = data.prevention;
         }
-
         /* Modal (Popup) Functions */
         function openModal() {
             const data = diseaseData[currentTopClass] || diseaseData["Tikka Disease"] || diseaseData["Default"];
